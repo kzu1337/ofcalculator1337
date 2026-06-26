@@ -28,6 +28,43 @@
             margin: 0 auto;
         }
 
+        /* Buton plutitor pentru Unblur */
+        .toggle-blur-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: #0f111a;
+            border: none;
+            padding: 12px 20px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.9em;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(240, 165, 0, 0.3);
+            z-index: 9999;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-blur-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 30px rgba(240, 165, 0, 0.5);
+        }
+
+        /* Stilurile pentru efectul de blur */
+        .sensitive-amount {
+            filter: blur(6px);
+            transition: filter 0.3s ease;
+            user-select: none;
+            display: inline-block;
+        }
+
+        body.show-values .sensitive-amount {
+            filter: blur(0px) !important;
+            user-select: auto;
+        }
+
         h1 {
             text-align: center;
             font-weight: 800;
@@ -182,16 +219,18 @@
 
         @media (max-width: 600px) {
             .stats-grid { grid-template-columns: 1fr; }
+            .toggle-blur-btn { position: static; display: block; width: 100%; margin-bottom: 20px; text-align: center; border-radius: 12px; }
         }
     </style>
 </head>
 <body>
 
+<button class="toggle-blur-btn" onclick="toggleBlur()">Afișează/Ascunde Sumele 👁️</button>
+
 <div class="container">
     <h1>Calculator Venit NET</h1>
     <p class="subtitle">Sistem inteligent de procesare plăți • T2 2026</p>
 
-    <!-- JS va injecta cardurile aici pentru a menține HTML-ul curat -->
     <div id="models-container"></div>
 
     <div class="summary-dashboard">
@@ -199,31 +238,35 @@
         <div class="summary-grid">
             <div class="big-stat">
                 <span class="stat-label">TOTAL NET GENERAL</span>
-                <span id="totalNetAll" class="highlight-yellow">0.00</span>
+                <span id="totalNetAll" class="highlight-yellow sensitive-amount">0.00</span>
             </div>
             <div class="big-stat">
                 <span class="stat-label">TOTAL NET IVY</span>
-                <span id="totalNetIvyOnly" class="highlight-yellow">0.00</span>
+                <span id="totalNetIvyOnly" class="highlight-yellow sensitive-amount">0.00</span>
             </div>
             <div class="big-stat">
                 <span class="stat-label">COMISION 20%</span>
-                <span id="sumTotal20" class="stat-value">0.00</span>
+                <span id="sumTotal20" class="stat-value sensitive-amount">0.00</span>
             </div>
             <div class="big-stat">
                 <span class="stat-label">COMISION 22.5%</span>
-                <span id="sumTotal225" class="stat-value">0.00</span>
+                <span id="sumTotal225" class="stat-value sensitive-amount">0.00</span>
             </div>
             <div class="total-comision-box">
                 <span class="stat-label">TOTAL COMISION DE ÎNCASAT</span>
-                <span id="totalComisionAll" style="font-size: 3em; font-weight: 900; color: #fff;">0.00</span>
+                <div>
+                    <span id="totalComisionAll" class="sensitive-amount" style="font-size: 3em; font-weight: 900; color: #fff;">0.00</span>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // Obiectul de configurare menține acum ordinea specifică: ElisaVibe este pus direct sub BustyMama
     const modelsConfig = {
         'BustyMama': 0.20,
+        'ElisaVibe': 0.20,
         'EmmaRiley': 0.20,
         'EmaR': 0.20,
         'EmaR69': 0.20,
@@ -257,16 +300,21 @@
             <div class="stats-grid">
                 <div class="stat-item">
                     <span class="stat-label">TOTAL NET</span>
-                    <span id="totalNet${model}" class="stat-value">0.00</span>
+                    <span id="totalNet${model}" class="stat-value sensitive-amount">0.00</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">COMISION (${perc}%)</span>
-                    <span id="totalPercent${model}" class="stat-value" style="color: var(--primary);">0.00</span>
+                    <span id="totalPercent${model}" class="stat-value sensitive-amount" style="color: var(--primary);">0.00</span>
                 </div>
             </div>
         `;
         container.appendChild(section);
     });
+
+    // Funcția care face switch-ul între blur și vizibil
+    function toggleBlur() {
+        document.body.classList.toggle('show-values');
+    }
 
     function processData(model) {
         const input = document.getElementById(`input${model}`).value;
@@ -292,7 +340,7 @@
                     <td>${date}</td>
                     <td>$${brut.toFixed(2)}</td>
                     <td>$${comision.toFixed(2)}</td>
-                    <td style="font-weight: 600;">$${net.toFixed(2)}</td>
+                    <td style="font-weight: 600;"><span class="sensitive-amount">$${net.toFixed(2)}</span></td>
                 `;
                 tableBody.appendChild(rowElement);
             }
